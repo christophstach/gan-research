@@ -66,4 +66,4 @@ class MsgDiscriminator(torch.nn.Module):
             x_forward = from_rgb(data, x_forward)
             x_forward = block(x_forward)
 
-            return x_forward
+        return x_forward

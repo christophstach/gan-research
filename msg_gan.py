@@ -31,13 +31,7 @@ class MsgGAN(pl.LightningModule):
         self.cfg = OmegaConf.create(self.hparams)
 
     def forward(self, z: torch.Tensor):
-        return self.generator_forward(z)
-
-    def generator_forward(self, z: torch.Tensor):
-        return self.generator.forward(z)
-
-    def discriminator_forward(self, x: torch.Tensor):
-        return self.generator.forward(x)
+        return self.generator(z)
 
     def setup(self, step):
         self.generator = models.MsgGenerator(
@@ -99,7 +93,7 @@ class MsgGAN(pl.LightningModule):
             # "gp": gp
         }
 
-        return OrderedDict({"loss": loss, "log": logs, "progress_bar": logs})
+        return OrderedDict({"loss": loss + gp, "log": logs, "progress_bar": logs})
 
     def training_step_generator(self, batch):
         self.real_images, _ = batch
