@@ -93,7 +93,7 @@ class MsgGAN(pl.LightningModule):
             # "gp": gp
         }
 
-        return OrderedDict({"loss": loss + gp, "log": logs, "progress_bar": logs})
+        return OrderedDict({"loss": loss, "log": logs, "progress_bar": logs})
 
     def training_step_generator(self, batch):
         self.real_images, _ = batch
