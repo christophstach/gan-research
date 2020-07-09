@@ -17,7 +17,7 @@ def train_msg_gan(cfg: DictConfig) -> None:
     trainer = pl.Trainer(
         checkpoint_callback=model_checkpoint,
         logger=logger,
-        **cfg.trainer
+        **cfg.trainer,
     )
 
     trainer.fit(model)
