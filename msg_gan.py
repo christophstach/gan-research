@@ -86,14 +86,14 @@ class MsgGAN(pl.LightningModule):
         fake_validity = self.discriminator(fake_images)
 
         loss = self.loss.discriminator_loss(real_validity, fake_validity)
-        # gp = self.discriminator_loss_regularizers[0](self.discriminator, self.real_images, fake_images[-1])
+        gp = self.discriminator_loss_regularizers[0](self.discriminator, self.real_images, fake_images[-1])
 
         logs = {
             "d_loss": loss,
-            # "gp": gp
+            "gp": gp
         }
 
-        return OrderedDict({"loss": loss, "log": logs, "progress_bar": logs})
+        return OrderedDict({"loss": loss + gp, "log": logs, "progress_bar": logs})
 
     def training_step_generator(self, batch):
         self.real_images, _ = batch
