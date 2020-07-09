@@ -1,0 +1,4 @@
+dataloader:
+  drop_last: True
+  num_workers: 10
+  batch_size: 32

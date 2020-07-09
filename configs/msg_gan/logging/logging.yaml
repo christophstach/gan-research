@@ -1,0 +1,7 @@
+logging:
+  image_grid_size: 5
+  logger:
+    class: pytorch_lightning.logging.WandbLogger
+    params:
+      project: gan-research
+      name: ${name}

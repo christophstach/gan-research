@@ -1,0 +1,14 @@
+optimizer:
+  generator:
+    frequency: 1
+    class: optimizers.OAdam
+    params:
+      lr: 1e-4
+      betas: [0.5, 0.9]
+
+  discriminator:
+    frequency: 1
+    class: optimizers.OAdam
+    params:
+      lr: 1e-4
+      betas: [0.5, 0.9]

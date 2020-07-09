@@ -1,0 +1,9 @@
+trainer:
+  # gpus: 1,
+  gpus:
+  distributed_backend: dp
+  accumulate_grad_batches: 1
+  profiler: False
+  max_epochs: 2
+  fast_dev_run: False
+  num_sanity_val_steps: 0

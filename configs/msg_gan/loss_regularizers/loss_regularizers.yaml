@@ -1,0 +1,14 @@
+loss_regularizers:
+  discriminator:
+    # 0 Centered GP
+     - regularizer:
+        log_as: gp
+        class: loss_regularizers.GradientPenalty
+        params:
+          center: 0
+          coefficient: 10
+          power: 2
+
+  generator: []
+
+

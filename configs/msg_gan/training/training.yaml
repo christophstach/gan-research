@@ -1,0 +1,4 @@
+training:
+  seed: 1337
+  dataloader_num_workers: 10
+  batch_size: 32

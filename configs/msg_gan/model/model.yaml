@@ -1,0 +1,9 @@
+model:
+  discriminator:
+    filter_multiplier: 4
+    min_filters: 0
+    max_filters: 0
+  generator:
+    filter_multiplier: 4
+    min_filters: 0
+    max_filters: 0

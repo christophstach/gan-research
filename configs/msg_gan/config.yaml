@@ -1,0 +1,22 @@
+defaults:
+  - dataset: mnist
+  - model: model
+  - loss: ra_lsgan
+  - loss_regularizers: loss_regularizers
+  - gradient_regularizers: gradient_regularizers
+  - trainer: default_trainer
+  - training: training
+  - callbacks: callbacks
+  - logging: logging
+  - dataloader: dataloader
+  - optimizer: oadam
+
+
+name: Meine tolles Experiment
+dataset_path: .datasets
+latent_dimension: 256
+image_size: 128
+spectral_normalization: True
+instance_noise: True
+alternation_interval: 1
+
