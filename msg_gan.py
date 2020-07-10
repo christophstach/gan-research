@@ -8,8 +8,11 @@ import torchvision
 import torchvision.transforms as transforms
 import wandb
 from omegaconf import OmegaConf
+from torch import Tensor
+from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
+import gradient_regularizers.base
 import loss_regularizers.base
 import losses.base
 import models
@@ -22,7 +25,9 @@ class MsgGAN(pl.LightningModule):
     train_dataset: torch.utils.data.Dataset
     loss: losses.base.Loss
     discriminator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
+    discriminator_gradient_regularizers: List[gradient_regularizers.base.GradientRegularizer]
     generator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
+    generator_gradient_regularizers: List[gradient_regularizers.base.GradientRegularizer]
     real_images: torch.Tensor
 
     def __init__(self, hparams=None):
@@ -63,9 +68,19 @@ class MsgGAN(pl.LightningModule):
             for regularizer in self.cfg.loss_regularizers.discriminator
         ]
 
+        self.discriminator_gradient_regularizers = [
+            hydra.utils.instantiate(regularizer)
+            for regularizer in self.cfg.gradient_regularizers.discriminator
+        ]
+
         self.generator_loss_regularizers = [
             hydra.utils.instantiate(regularizer)
             for regularizer in self.cfg.loss_regularizers.generator
+        ]
+
+        self.generator_gradient_regularizers = [
+            hydra.utils.instantiate(regularizer)
+            for regularizer in self.cfg.gradient_regularizers.generator
         ]
 
     def training_step(self, batch, batch_idx, optimizer_idx):
@@ -180,6 +195,17 @@ class MsgGAN(pl.LightningModule):
             {"optimizer": discriminator_optimizer, "frequency": self.cfg.optimizer.discriminator.frequency},
             {"optimizer": generator_optimizer, "frequency": self.cfg.optimizer.generator.frequency}
         )
+
+    def backward(self, trainer, loss: Tensor, optimizer: Optimizer, optimizer_idx: int) -> None:
+        loss.backward()
+
+        if optimizer_idx == 0:
+            for discriminator_gradient_regularizer in self.discriminator_gradient_regularizers:
+                discriminator_gradient_regularizer(self.discriminator)
+
+        if optimizer_idx == 1:
+            for generator_gradient_regularizer in self.generator_gradient_regularizers:
+                generator_gradient_regularizer(self.generator)
 
     def on_epoch_end(self) -> None:
         z = utils.sample_noise(self.cfg.logging.image_grid_size ** 2, self.cfg.latent_dimension, self.real_images.device)

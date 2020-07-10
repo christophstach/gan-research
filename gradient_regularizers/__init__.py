@@ -1,0 +1,2 @@
+from .modified_orthogonal_regularizer import ModifiedOrthogonalRegularizer
+from .orthogonal_regularizer import DefaultOrthogonalRegularizer

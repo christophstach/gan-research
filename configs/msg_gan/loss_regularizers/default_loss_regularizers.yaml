@@ -8,12 +8,18 @@ loss_regularizers:
         coefficient: 10
         power: 2
 
+    - name: Orthogonal Regularizer
+      class: loss_regularizers.OrthogonalRegularizer
+      params:
+        log_as: g_orth
+        regularization: 1e-4
+
   generator:
     - name: Orthogonal Regularizer
       class: loss_regularizers.OrthogonalRegularizer
       params:
         log_as: g_orth
-        regularization: 1e-6
+        regularization: 1e-4
 
 
 
