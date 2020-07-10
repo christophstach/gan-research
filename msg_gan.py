@@ -116,7 +116,6 @@ class MsgGAN(pl.LightningModule):
         logs = {}
 
         z = utils.sample_noise(self.real_images.size(0), self.cfg.latent_dimension, self.real_images.device)
-
         scaled_real_images = utils.to_scaled_images(self.real_images, self.cfg.image_size)
         fake_images = self.forward(z)
 
