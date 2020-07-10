@@ -2,7 +2,7 @@ defaults:
   - dataset: mnist
   - model: model
   - loss: ra_lsgan
-  - loss_regularizers: loss_regularizers
+  - loss_regularizers: gradient_penalty
   - gradient_regularizers: gradient_regularizers
   - trainer: default_trainer
   - training: training
