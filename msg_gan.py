@@ -133,7 +133,7 @@ class MsgGAN(pl.LightningModule):
             "progress_bar": logs
         })
 
-    def prepare_data(self) -> None:
+    def train_dataloader(self) -> torch.utils.data.DataLoader:
         transform = transforms.Compose([
             transforms.Resize((self.cfg.image_size, self.cfg.image_size)),
             transforms.ToTensor(),
@@ -151,7 +151,6 @@ class MsgGAN(pl.LightningModule):
         self.train_dataset.download = True
         self.train_dataset.transform = transform
 
-    def train_dataloader(self) -> torch.utils.data.DataLoader:
         return DataLoader(
             batch_size=self.cfg.dataloader.batch_size,
             drop_last=self.cfg.dataloader.drop_last,
