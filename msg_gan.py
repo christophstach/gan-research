@@ -101,13 +101,14 @@ class MsgGAN(pl.LightningModule):
 
         logs = {
             **logs,
-            "d_loss": loss,
-            **regularizers
+            **regularizers,
+            "d_loss": loss
         }
 
         return OrderedDict({
-            "d_loss": loss + sum(regularizers.values()),
-            "log": logs, "progress_bar": logs
+            "loss": loss + sum(regularizers.values()),
+            "log": logs,
+            "progress_bar": logs
         })
 
     def training_step_generator(self, batch):
@@ -137,12 +138,12 @@ class MsgGAN(pl.LightningModule):
 
         logs = {
             **logs,
-            "g_loss": loss,
-            **regularizers
+            **regularizers,
+            "g_loss": loss
         }
 
         return OrderedDict({
-            "g_loss": loss + sum(regularizers.values()),
+            "loss": loss + sum(regularizers.values()),
             "log": logs,
             "progress_bar": logs
         })
