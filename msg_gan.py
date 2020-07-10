@@ -123,7 +123,7 @@ class MsgGAN(pl.LightningModule):
             "g_loss": loss,
             **regularizers
         }
-        
+
         return OrderedDict({"loss": loss + sum(regularizers.values()), "log": logs, "progress_bar": logs})
 
     def prepare_data(self) -> None:
