@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List
+from typing import List, Dict, Any
 
 import hydra
 import pytorch_lightning as pl
@@ -28,6 +28,14 @@ class MsgGAN(pl.LightningModule):
     def __init__(self, hparams=None):
         super().__init__()
         self.hparams = hparams
+        self.cfg = OmegaConf.create(self.hparams)
+
+    def init_ddp_connection(self, global_rank: int, world_size: int, is_slurm_managing_tasks: bool = True) -> None:
+        super().init_ddp_connection(global_rank, world_size, is_slurm_managing_tasks)
+
+        self.cfg = OmegaConf.create(self.hparams)
+
+    def on_load_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
         self.cfg = OmegaConf.create(self.hparams)
 
     def forward(self, z: torch.Tensor):
