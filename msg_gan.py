@@ -55,16 +55,14 @@ class MsgGAN(pl.LightningModule):
 
         self.loss = hydra.utils.instantiate(self.cfg.loss)
 
-        self.generator_loss_regularizers = [
-            hydra.utils.instantiate(generator_loss_regularizer.regularizer)
-            for generator_loss_regularizer
-            in self.cfg.loss_regularizers.generator
+        self.discriminator_loss_regularizers = [
+            hydra.utils.instantiate(regularizer)
+            for regularizer in self.cfg.loss_regularizers.discriminator
         ]
 
-        self.discriminator_loss_regularizers = [
-            hydra.utils.instantiate(discriminator_loss_regularizer.regularizer)
-            for discriminator_loss_regularizer
-            in self.cfg.loss_regularizers.discriminator
+        self.generator_loss_regularizers = [
+            hydra.utils.instantiate(regularizer)
+            for regularizer in self.cfg.loss_regularizers.generator
         ]
 
     def training_step(self, batch, batch_idx, optimizer_idx):
@@ -88,14 +86,19 @@ class MsgGAN(pl.LightningModule):
         fake_validity = self.discriminator(fake_images)
 
         loss = self.loss.discriminator_loss(real_validity, fake_validity)
-        gp = self.discriminator_loss_regularizers[0](self.discriminator, self.real_images, fake_images[-1])
+
+        regularizers = {
+            r.log_as: r(self.discriminator, scaled_real_images, fake_images)
+            for r
+            in self.discriminator_loss_regularizers
+        }
 
         logs = {
             "d_loss": loss,
-            "gp": gp
+            **regularizers
         }
 
-        return OrderedDict({"loss": loss + gp, "log": logs, "progress_bar": logs})
+        return OrderedDict({"loss": loss + sum(regularizers.values()), "log": logs, "progress_bar": logs})
 
     def training_step_generator(self, batch):
         self.real_images, _ = batch
@@ -110,10 +113,17 @@ class MsgGAN(pl.LightningModule):
 
         loss = self.loss.generator_loss(real_validity, fake_validity)
 
+        regularizers = {
+            r.log_as: r(self.generator, scaled_real_images, fake_images)
+            for r
+            in self.generator_loss_regularizers
+        }
+
         logs = {
             "g_loss": loss,
+            **regularizers
         }
-        return OrderedDict({"loss": loss, "log": logs, "progress_bar": logs})
+        return OrderedDict({"loss": loss + sum(regularizers.values()), "log": logs, "progress_bar": logs})
 
     def prepare_data(self) -> None:
         transform = transforms.Compose([

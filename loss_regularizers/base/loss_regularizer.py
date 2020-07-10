@@ -1,10 +1,12 @@
 import abc
+from typing import List
 
-import pytorch_lightning as pl
 import torch
 
 
 class LossRegularizer(abc.ABC):
+    log_as: str
+
     @abc.abstractmethod
-    def __call__(self, model: pl.LightningModule, real_images: torch.Tensor, fake_images: torch.Tensor):
+    def __call__(self, model: torch.nn.Module, real_images: List[torch.Tensor], fake_images: List[torch.Tensor]):
         raise NotImplementedError()
