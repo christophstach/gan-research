@@ -72,11 +72,8 @@ class MsgGAN(pl.LightningModule):
         self.discriminator.train(optimizer_idx == 0)
         self.generator.train(optimizer_idx == 1)
 
-        if optimizer_idx == 0:  # Train discriminator
-            return self.training_step_discriminator(batch)
-
-        if optimizer_idx == 1:  # Train generator
-            return self.training_step_generator(batch)
+        if optimizer_idx == 0: return self.training_step_discriminator(batch)
+        if optimizer_idx == 1: return self.training_step_generator(batch)
 
     def training_step_discriminator(self, batch):
         self.real_images, _ = batch
@@ -109,7 +106,7 @@ class MsgGAN(pl.LightningModule):
         }
 
         return OrderedDict({
-            "loss": loss + sum(regularizers.values()),
+            "d_loss": loss + sum(regularizers.values()),
             "log": logs, "progress_bar": logs
         })
 
@@ -145,7 +142,7 @@ class MsgGAN(pl.LightningModule):
         }
 
         return OrderedDict({
-            "loss": loss + sum(regularizers.values()),
+            "g_loss": loss + sum(regularizers.values()),
             "log": logs,
             "progress_bar": logs
         })

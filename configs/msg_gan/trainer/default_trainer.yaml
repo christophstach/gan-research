@@ -1,6 +1,6 @@
 trainer:
   # gpus: 1,
-  gpus: []
+  gpus:
   distributed_backend: ddp
   accumulate_grad_batches: 1
   profiler: False
