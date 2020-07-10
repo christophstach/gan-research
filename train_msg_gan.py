@@ -30,7 +30,7 @@ def start_train_msg_gan(cfg: DictConfig) -> None:
 
 
 def resume_train_msg_gan(cfg: DictConfig) -> None:
-    path = f"{hydra.utils.to_absolute_path(cfg.checkpoints_path)}/{cfg.resume_id}.pth"
+    path = f"{cfg.checkpoints_path}/{cfg.resume_id}.pth"
     hparams = OmegaConf.to_container(cfg, resolve=True)
 
     _, version = cfg.resume_id.split("--")

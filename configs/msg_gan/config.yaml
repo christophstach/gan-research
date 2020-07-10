@@ -12,8 +12,8 @@ defaults:
 
 
 name: experiment
-datasets_path: .datasets
-checkpoints_path: .checkpoints
+datasets_path: /home/users/stachc/Code/gan-research/.datasets
+checkpoints_path: /home/users/stachc/Code/gan-research/.checkpoints
 latent_dimension: 256
 image_size: 128
 spectral_normalization: True

@@ -145,12 +145,10 @@ class MsgGAN(pl.LightningModule):
 
         self.train_dataset = hydra.utils.instantiate(
             self.cfg.dataset,
-            hydra.utils.to_absolute_path(self.cfg.datasets_path),
+            self.cfg.datasets_path,
             train=True,
             download=True
         )
-
-        print(hydra.utils.to_absolute_path(self.cfg.datasets_path))
 
         self.train_dataset.train = True
         self.train_dataset.download = True
@@ -186,5 +184,5 @@ class MsgGAN(pl.LightningModule):
             }, step=self.global_step)
 
         name = " ".join(str(self.cfg.name).split()).replace(" ", "-").lower()
-        path = f"{hydra.utils.to_absolute_path(self.cfg.checkpoints_path)}/{name}--{self.logger.version}.pth"
+        path = f"{self.cfg.checkpoints_path}/{name}--{self.logger.version}.pth"
         self.trainer.save_checkpoint(path)
