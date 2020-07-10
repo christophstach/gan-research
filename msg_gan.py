@@ -30,11 +30,6 @@ class MsgGAN(pl.LightningModule):
         self.hparams = hparams
         self.cfg = OmegaConf.create(self.hparams)
 
-    def init_ddp_connection(self, global_rank: int, world_size: int, is_slurm_managing_tasks: bool = True) -> None:
-        super().init_ddp_connection(global_rank, world_size, is_slurm_managing_tasks)
-
-        self.cfg = OmegaConf.create(self.hparams)
-
     def on_load_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
         self.cfg = OmegaConf.create(self.hparams)
 
@@ -154,6 +149,8 @@ class MsgGAN(pl.LightningModule):
             train=True,
             download=True
         )
+
+        print(hydra.utils.to_absolute_path(self.cfg.datasets_path))
 
         self.train_dataset.train = True
         self.train_dataset.download = True
