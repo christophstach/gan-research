@@ -25,7 +25,7 @@ class MsgGAN(pl.LightningModule):
     generator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
     real_images: torch.Tensor
 
-    def __init__(self, hparams):
+    def __init__(self, hparams=None):
         super().__init__()
         self.hparams = hparams
         self.cfg = OmegaConf.create(self.hparams)
@@ -40,7 +40,8 @@ class MsgGAN(pl.LightningModule):
             self.cfg.model.generator.max_filters,
             self.cfg.image_size,
             self.cfg.dataset.image_channels,
-            self.cfg.latent_dimension
+            self.cfg.latent_dimension,
+            self.cfg.spectral_normalization
         )
 
         self.discriminator = models.MsgDiscriminator(
@@ -48,7 +49,8 @@ class MsgGAN(pl.LightningModule):
             self.cfg.model.generator.min_filters,
             self.cfg.model.generator.max_filters,
             self.cfg.image_size,
-            self.cfg.dataset.image_channels
+            self.cfg.dataset.image_channels,
+            self.cfg.spectral_normalization
         )
 
         self.loss = hydra.utils.instantiate(self.cfg.loss)
@@ -122,7 +124,7 @@ class MsgGAN(pl.LightningModule):
 
         self.train_dataset = hydra.utils.instantiate(
             self.cfg.dataset,
-            hydra.utils.to_absolute_path(self.cfg.dataset_path),
+            hydra.utils.to_absolute_path(self.cfg.datasets_path),
             train=True,
             download=True
         )
@@ -160,3 +162,7 @@ class MsgGAN(pl.LightningModule):
             self.logger.experiment.log({
                 str(resolution.size(2)) + "x" + str(resolution.size(3)): grid
             }, step=self.global_step)
+
+        name = " ".join(str(self.cfg.name).split()).replace(" ", "-").lower()
+        path = f"{hydra.utils.to_absolute_path(self.cfg.checkpoints_path)}/{name}--{self.logger.version}.pth"
+        self.trainer.save_checkpoint(path)

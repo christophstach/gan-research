@@ -1,8 +1,0 @@
-callbacks:
-  model_checkpoint:
-    class: pytorch_lightning.callbacks.ModelCheckpoint
-    params:
-      save_top_k: 1
-      monitor: loss
-      mode: max
-      filepath: .checkpoints/

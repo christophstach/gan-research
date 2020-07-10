@@ -3,10 +3,11 @@ import math
 import torch
 
 import layers as l
+from torch.nn.utils import spectral_norm
 
 
 class MsgDiscriminator(torch.nn.Module):
-    def __init__(self, filter_multiplier, min_filters, max_filters, image_size, image_channels) -> None:
+    def __init__(self, filter_multiplier, min_filters, max_filters, image_size, image_channels, spectral_normalization) -> None:
         super().__init__()
 
         self.blocks = torch.nn.ModuleList()
@@ -57,6 +58,11 @@ class MsgDiscriminator(torch.nn.Module):
             self.from_rgb_combiners.append(
                 l.SimpleFromRgbCombiner()
             )
+
+        if spectral_normalization:
+            for block in self.blocks:
+                block.conv1 = spectral_norm(block.conv1)
+                block.conv2 = spectral_norm(block.conv2)
 
     def forward(self, x) -> torch.Tensor:
         x = list(reversed(x))

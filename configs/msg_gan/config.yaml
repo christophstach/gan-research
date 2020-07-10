@@ -6,17 +6,17 @@ defaults:
   - gradient_regularizers: gradient_regularizers
   - trainer: default_trainer
   - training: training
-  - callbacks: callbacks
   - logging: logging
   - dataloader: dataloader
   - optimizer: oadam
 
 
-name: Meine tolles Experiment
-dataset_path: .datasets
+name: experiment
+datasets_path: .datasets
+checkpoints_path: .checkpoints
 latent_dimension: 256
 image_size: 128
 spectral_normalization: True
 instance_noise: True
 alternation_interval: 1
-
+resume_id: False

@@ -5,3 +5,4 @@ logging:
     params:
       project: gan-research
       name: ${name}
+      version:

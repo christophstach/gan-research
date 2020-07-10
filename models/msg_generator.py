@@ -2,12 +2,13 @@ import math
 from typing import List
 
 import torch
+from torch.nn.utils import spectral_norm
 
 import layers as l
 
 
 class MsgGenerator(torch.nn.Module):
-    def __init__(self, filter_multiplier, min_filters, max_filters, image_size, image_channels, lantent_dimension) -> None:
+    def __init__(self, filter_multiplier, min_filters, max_filters, image_size, image_channels, lantent_dimension, spectral_normalization) -> None:
         super().__init__()
 
         self.blocks = torch.nn.ModuleList()
@@ -66,6 +67,11 @@ class MsgGenerator(torch.nn.Module):
                     padding=0
                 )
             )
+
+        if spectral_normalization:
+            for block in self.blocks:
+                block.conv1 = spectral_norm(block.conv1)
+                block.conv2 = spectral_norm(block.conv2)
 
     def forward(self, z) -> List[torch.Tensor]:
         outputs = []
