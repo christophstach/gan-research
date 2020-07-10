@@ -2,7 +2,7 @@ loss_regularizers:
   discriminator: []
 
   generator:
-    - name: Orthogonal Regularization
+    - name: Orthogonal Regularizer
       class: loss_regularizers.OrthogonalRegularizer
       params:
         log_as: g_orth
