@@ -1,7 +1,7 @@
 trainer:
   # gpus: 1,
   gpus:
-  distributed_backend: dp
+  distributed_backend: ddp
   accumulate_grad_batches: 1
   profiler: False
   max_epochs: 500

@@ -98,7 +98,10 @@ class MsgGAN(pl.LightningModule):
             **regularizers
         }
 
-        return OrderedDict({"loss": loss + sum(regularizers.values()), "log": logs, "progress_bar": logs})
+        return OrderedDict({
+            "loss": loss + sum(regularizers.values()),
+            "log": logs, "progress_bar": logs
+        })
 
     def training_step_generator(self, batch):
         self.real_images, _ = batch
@@ -124,7 +127,11 @@ class MsgGAN(pl.LightningModule):
             **regularizers
         }
 
-        return OrderedDict({"loss": loss + sum(regularizers.values()), "log": logs, "progress_bar": logs})
+        return OrderedDict({
+            "loss": loss + sum(regularizers.values()),
+            "log": logs,
+            "progress_bar": logs
+        })
 
     def prepare_data(self) -> None:
         transform = transforms.Compose([
