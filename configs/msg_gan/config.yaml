@@ -3,7 +3,7 @@ defaults:
   - model: model
   - loss: wgan
   - loss_regularizers: default_loss_regularizers
-  - gradient_regularizers: gradient_regularizers
+  - weight_regularizers: weight_regularizers
   - trainer: default_trainer
   - training: training
   - logging: logging

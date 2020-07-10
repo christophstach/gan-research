@@ -12,7 +12,7 @@ from torch import Tensor
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
-import gradient_regularizers.base
+import weight_regularizers.base
 import loss_regularizers.base
 import losses.base
 import models
@@ -25,9 +25,9 @@ class MsgGAN(pl.LightningModule):
     train_dataset: torch.utils.data.Dataset
     loss: losses.base.Loss
     discriminator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
-    discriminator_gradient_regularizers: List[gradient_regularizers.base.GradientRegularizer]
+    discriminator_gradient_regularizers: List[weight_regularizers.base.GradientRegularizer]
     generator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
-    generator_gradient_regularizers: List[gradient_regularizers.base.GradientRegularizer]
+    generator_gradient_regularizers: List[weight_regularizers.base.GradientRegularizer]
     real_images: torch.Tensor
 
     def __init__(self, hparams=None):

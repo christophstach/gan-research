@@ -1,13 +1,13 @@
 gradient_regularizers:
   discriminator:
     - name: Modified Orthogonal Regularizer
-      class: gradient_regularizers.ModifiedOrthogonalRegularizer
+      class: weight_regularizers.ModifiedOrthogonalRegularizer
       params:
         regularization: 1e-4
 
   generator:
     - name: Modified Orthogonal Regularizer
-      class: gradient_regularizers.ModifiedOrthogonalRegularizer
+      class: weight_regularizers.ModifiedOrthogonalRegularizer
       params:
         regularization: 1e-4
 
