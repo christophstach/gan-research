@@ -1,0 +1,20 @@
+loss_regularizers:
+  discriminator:
+    - name: 0 Centered GP
+      class: loss_regularizers.GradientPenalty
+      params:
+        log_as: gp
+        center: 0
+        coefficient: 10
+        power: 2
+
+  generator:
+    - name: Orthogonal Regularizer
+      class: loss_regularizers.OrthogonalRegularizer
+      params:
+        log_as: g_orth
+        regularization: 1e-6
+
+
+
+

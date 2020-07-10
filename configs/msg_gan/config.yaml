@@ -2,7 +2,7 @@ defaults:
   - dataset: mnist
   - model: model
   - loss: ra_lsgan
-  - loss_regularizers: gradient_penalty
+  - loss_regularizers: default_loss_regularizers
   - gradient_regularizers: gradient_regularizers
   - trainer: default_trainer
   - training: training
@@ -18,5 +18,5 @@ latent_dimension: 256
 image_size: 128
 spectral_normalization: True
 instance_noise: True
-alternation_interval: 1
+instance_noise_last_global_step: 75000
 resume_id: False

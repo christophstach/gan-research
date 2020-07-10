@@ -1,6 +1,6 @@
 trainer:
   # gpus: 1,
-  gpus:
+  gpus: []
   distributed_backend: ddp
   accumulate_grad_batches: 1
   profiler: False
@@ -8,3 +8,4 @@ trainer:
   fast_dev_run: False
   num_sanity_val_steps: 0
   early_stop_callback: False
+  progress_bar_refresh_rate: 10

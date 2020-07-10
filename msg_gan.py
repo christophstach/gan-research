@@ -85,6 +85,10 @@ class MsgGAN(pl.LightningModule):
         scaled_real_images = utils.to_scaled_images(self.real_images, self.cfg.image_size)
         fake_images = [fake_image.detach() for fake_image in self.forward(z)]
 
+        if self.cfg.instance_noise:
+            scaled_real_images = utils.instance_noise(scaled_real_images, self.global_step, self.cfg.instance_noise_last_global_step)
+            fake_images = utils.instance_noise(fake_images, self.global_step, self.cfg.instance_noise_last_global_step)
+
         real_validity = self.discriminator(scaled_real_images)
         fake_validity = self.discriminator(fake_images)
 
@@ -113,6 +117,10 @@ class MsgGAN(pl.LightningModule):
 
         scaled_real_images = utils.to_scaled_images(self.real_images, self.cfg.image_size)
         fake_images = self.forward(z)
+
+        if self.cfg.instance_noise:
+            scaled_real_images = utils.instance_noise(scaled_real_images, self.global_step, self.cfg.instance_noise_last_global_step)
+            fake_images = utils.instance_noise(fake_images, self.global_step, self.cfg.instance_noise_last_global_step)
 
         real_validity = self.discriminator(scaled_real_images)
         fake_validity = self.discriminator(fake_images)
