@@ -8,12 +8,6 @@ loss_regularizers:
         coefficient: 10
         power: 2
 
-  generator:
-    - name: Orthogonal Regularization
-      class: loss_regularizers.OrthogonalRegularizer
-      params:
-        log_as: g_orth
-        regularization: 1e-6
-
+  generator: []
 
 

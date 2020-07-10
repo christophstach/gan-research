@@ -8,6 +8,6 @@ loss_regularizers:
         coefficient: 10
         power: 2
 
-  generator:
+  generator: []
 
 

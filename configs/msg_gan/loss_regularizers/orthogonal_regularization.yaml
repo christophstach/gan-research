@@ -1,6 +1,6 @@
 loss_regularizers:
-  discriminator:
-    
+  discriminator: []
+
   generator:
     - name: Orthogonal Regularization
       class: loss_regularizers.OrthogonalRegularizer
