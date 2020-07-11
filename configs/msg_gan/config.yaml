@@ -1,5 +1,5 @@
 defaults:
-  - dataset: mnist
+  - dataset: celeba_hq
   - model: model
   - loss: wgan
   - loss_regularizers: default_loss_regularizers
