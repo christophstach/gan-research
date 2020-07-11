@@ -8,7 +8,7 @@ loss_regularizers:
         coefficient: 20
         power: 2
         norm_type: linf
-        penalty_type: hinge
+        penalty_type: ls
 
   generator: []
 
