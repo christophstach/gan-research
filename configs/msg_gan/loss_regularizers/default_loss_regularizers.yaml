@@ -1,12 +1,14 @@
 loss_regularizers:
   discriminator:
-    - name: 0 Centered GP
+    - name: Linfinity gradient penalties # https://github.com/AlexiaJM/MaximumMarginGANs
       class: loss_regularizers.GradientPenalty
       params:
         log_as: gp
-        center: 0
-        coefficient: 10
+        center: 1
+        coefficient: 20
         power: 2
+        norm_type: linf
+        penalty_type: hinge
 
   generator: []
 
