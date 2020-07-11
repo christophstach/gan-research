@@ -92,7 +92,8 @@ class MsgGAN(pl.LightningModule):
         else:
             outputs = self.training_step_generator(batch)
 
-        self.logger.experiment.log(outputs["log"])
+        log = {k: outputs["log"][k].item() for k in outputs["log"].keys()}
+        self.logger.experiment.log(log)
         return {
             "loss": outputs["loss"],
             "progress_bar": outputs["progress_bar"]
