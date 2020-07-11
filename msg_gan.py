@@ -87,8 +87,16 @@ class MsgGAN(pl.LightningModule):
         self.discriminator.train(optimizer_idx == 0)
         self.generator.train(optimizer_idx == 1)
 
-        if optimizer_idx == 0: return self.training_step_discriminator(batch)
-        if optimizer_idx == 1: return self.training_step_generator(batch)
+        if optimizer_idx == 0:
+            outputs = self.training_step_discriminator(batch)
+        else:
+            outputs = self.training_step_generator(batch)
+
+        self.logger.experiment.log(outputs["log"])
+        return {
+            "loss": outputs["loss"],
+            "progress_bar": outputs["progress_bar"]
+        }
 
     def training_step_discriminator(self, batch):
         self.real_images, _ = batch
@@ -120,9 +128,9 @@ class MsgGAN(pl.LightningModule):
             "d_loss": loss
         }
 
-        self.logger.experiment.log(logs, step=self.global_step)
         return OrderedDict({
             "loss": loss + sum(regularizers.values()),
+            "log": logs,
             "progress_bar": logs
         })
 
@@ -156,9 +164,9 @@ class MsgGAN(pl.LightningModule):
             "g_loss": loss
         }
 
-        self.logger.experiment.log(logs, step=self.global_step)
         return OrderedDict({
             "loss": loss + sum(regularizers.values()),
+            "log": logs,
             "progress_bar": logs
         })
 
@@ -218,7 +226,7 @@ class MsgGAN(pl.LightningModule):
 
             self.logger.experiment.log({
                 str(resolution.size(2)) + "x" + str(resolution.size(3)): grid
-            }, step=self.global_step)
+            })
 
         name = " ".join(str(self.cfg.name).split()).replace(" ", "-").lower()
         path = f"{self.cfg.checkpoints_path}/{name}--{self.logger.version}.pth"
