@@ -93,7 +93,7 @@ class MsgGAN(pl.LightningModule):
             outputs = self.training_step_generator(batch)
 
         log = {
-            k: outputs["log"][k].item() if isinstance(outputs["log"][k] , torch.Tensor) else outputs["log"][k]
+            k: outputs["log"][k].item() if isinstance(outputs["log"][k], torch.Tensor) else outputs["log"][k]
             for k in outputs["log"].keys()
         }
         self.logger.experiment.log(log)
@@ -223,14 +223,14 @@ class MsgGAN(pl.LightningModule):
         z = utils.sample_noise(self.cfg.logging.image_grid_size ** 2, self.cfg.latent_dimension, self.real_images.device)
         resolutions = self.forward(z)
 
-        for resolution in resolutions:
-            grid = wandb.Image(
+        logs = {
+            str(resolution.size(2)) + "x" + str(resolution.size(3)): wandb.Image(
                 torchvision.utils.make_grid(resolution.detach(), nrow=self.cfg.logging.image_grid_size, padding=1)
             )
+            for resolution in resolutions
+        }
 
-            self.logger.experiment.log({
-                str(resolution.size(2)) + "x" + str(resolution.size(3)): grid
-            })
+        self.logger.experiment.log(logs)
 
         name = " ".join(str(self.cfg.name).split()).replace(" ", "-").lower()
         path = f"{self.cfg.checkpoints_path}/{name}--{self.logger.version}.pth"
