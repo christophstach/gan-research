@@ -92,7 +92,10 @@ class MsgGAN(pl.LightningModule):
         else:
             outputs = self.training_step_generator(batch)
 
-        log = {k: outputs["log"][k].item() for k in outputs["log"].keys()}
+        log = {
+            k: outputs["log"][k].item() if isinstance(outputs["log"][k] , torch.Tensor) else outputs["log"][k]
+            for k in outputs["log"].keys()
+        }
         self.logger.experiment.log(log)
         return {
             "loss": outputs["loss"],
