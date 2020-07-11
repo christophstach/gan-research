@@ -12,11 +12,11 @@ from torch import Tensor
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
-import weight_regularizers.base
 import loss_regularizers.base
 import losses.base
 import models
 import utils
+import weight_regularizers.base
 
 
 class MsgGAN(pl.LightningModule):
@@ -120,9 +120,9 @@ class MsgGAN(pl.LightningModule):
             "d_loss": loss
         }
 
+        self.logger.experiment.log(logs, step=self.global_step)
         return OrderedDict({
             "loss": loss + sum(regularizers.values()),
-            "log": logs,
             "progress_bar": logs
         })
 
@@ -156,9 +156,9 @@ class MsgGAN(pl.LightningModule):
             "g_loss": loss
         }
 
+        self.logger.experiment.log(logs, step=self.global_step)
         return OrderedDict({
             "loss": loss + sum(regularizers.values()),
-            "log": logs,
             "progress_bar": logs
         })
 
