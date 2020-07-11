@@ -15,7 +15,7 @@ name: experiment
 datasets_path: /home/users/stachc/Code/gan-research/.datasets
 checkpoints_path: /home/users/stachc/Code/gan-research/.checkpoints
 latent_dimension: 256
-image_size: 128
+image_size: 256
 spectral_normalization: True
 instance_noise: True
 instance_noise_last_global_step: 75000
