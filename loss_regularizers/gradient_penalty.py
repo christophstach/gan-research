@@ -45,7 +45,7 @@ class GradientPenalty(loss_regularizers.base.LossRegularizer):
             gradients_norm = gradients.norm(2, dim=1)
         elif self.norm_type == "linf":
             gradients_norm, _ = torch.max(torch.abs(gradients), 1)
-        else
+        else:
             raise NotImplementedError()
 
         if self.penalty_type == "ls":
