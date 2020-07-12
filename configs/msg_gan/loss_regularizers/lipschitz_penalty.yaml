@@ -1,0 +1,17 @@
+loss_regularizers:
+  discriminator:
+    - name: Lipschitz Penalty # https://arxiv.org/abs/1709.08894
+      class: loss_regularizers.GradientPenalty
+      params:
+        log_as: gp
+        center: 1
+        coefficient: 10
+        power: 2
+        norm_type: l2
+        penalty_type: hinge
+
+  generator: []
+
+
+
+
