@@ -51,7 +51,7 @@ class GradientPenalty(loss_regularizers.base.LossRegularizer):
         if self.penalty_type == "ls":
             penalties = (gradients_norm - self.center) ** self.power
         elif self.penalty_type == "hinge":
-            penalties = torch.relu(gradients_norm - self.center)
+            penalties = torch.relu(gradients_norm - self.center) ** self.power
         else:
             raise NotImplementedError()
 

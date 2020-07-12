@@ -1,7 +1,7 @@
 defaults:
   - dataset: celeba_hq
   - model: model
-  - loss: hinge
+  - loss: wgan
   - loss_regularizers: default_loss_regularizers
   - weight_regularizers: weight_regularizers
   - trainer: default_trainer

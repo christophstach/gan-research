@@ -6,9 +6,19 @@ loss_regularizers:
         log_as: gp
         center: 1
         coefficient: 20
-        power: 2
+        power: 1
         norm_type: linf
         penalty_type: hinge
+
+    - name: 1 Centered GP # Original WGAN-GP
+      class: loss_regularizers.GradientPenalty
+      params:
+        log_as: gp
+        center: 1
+        coefficient: 10
+        power: 2
+        norm_type: l2
+        penalty_type: ls
 
     - name: 0 Centered GP
       class: loss_regularizers.GradientPenalty
@@ -19,6 +29,16 @@ loss_regularizers:
         power: 2
         norm_type: l2
         penalty_type: ls
+
+    - name: Lipschitz Penalty # https://arxiv.org/abs/1709.08894
+      class: loss_regularizers.GradientPenalty
+      params:
+        log_as: gp
+        center: 1
+        coefficient: 10
+        power: 2
+        norm_type: l2
+        penalty_type: hinge
 
   generator: []
 
