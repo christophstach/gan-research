@@ -7,6 +7,7 @@ from torch.optim.optimizer import Optimizer
 
 from utils.cgd import zero_grad, general_conjugate_gradient, Hvp_vec
 
+
 # https://github.com/devzhk/Implicit-Competitive-Regularization
 
 class ACGD(Optimizer):
@@ -14,7 +15,6 @@ class ACGD(Optimizer):
                  lr_max=1e-3, lr_min=1e-3,
                  eps=1e-5, beta=0.99,
                  tol=1e-12, atol=1e-20,
-                 device=torch.device('cpu'),
                  solve_x=False, collect_info=True):
         self.max_params = list(max_params)
         self.min_params = list(min_params)
@@ -29,7 +29,8 @@ class ACGD(Optimizer):
                      'hvp_x': None, 'hvp_y': None,
                      'cg_x': None, 'cg_y': None,
                      'time': 0, 'iter_num': 0}
-        self.device = device
+        
+        self.device = self.max_params[0].device
         self.collect_info = collect_info
 
     def zero_grad(self):
