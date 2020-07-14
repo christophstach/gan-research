@@ -236,6 +236,7 @@ class BCGD2(Optimizer):
         self.max_params = list(max_params)
         self.min_params = list(min_params)
         self.device = self.max_params[0].device
+        
         self.collect_info = collect_info
         self.state = {'lr_max': lr_max, 'lr_min': lr_min,
                       'tol': tol, 'atol': atol,

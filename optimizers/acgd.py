@@ -18,6 +18,7 @@ class ACGD(Optimizer):
                  solve_x=False, collect_info=True):
         self.max_params = list(max_params)
         self.min_params = list(min_params)
+        self.device = self.max_params[0].device
 
         self.state = {'lr_max': lr_max, 'lr_min': lr_min,
                       'eps': eps, 'solve_x': solve_x,
@@ -30,7 +31,6 @@ class ACGD(Optimizer):
                      'cg_x': None, 'cg_y': None,
                      'time': 0, 'iter_num': 0}
 
-        self.device = self.max_params[0].device
         self.collect_info = collect_info
 
     def zero_grad(self):
