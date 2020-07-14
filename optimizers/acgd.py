@@ -29,8 +29,10 @@ class ACGD(Optimizer):
                      'hvp_x': None, 'hvp_y': None,
                      'cg_x': None, 'cg_y': None,
                      'time': 0, 'iter_num': 0}
-        
+
         self.device = self.max_params[0].device
+        
+
         self.collect_info = collect_info
 
     def zero_grad(self):
