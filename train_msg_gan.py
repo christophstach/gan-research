@@ -8,7 +8,7 @@ from msg_gan import MsgGAN
 
 @hydra.main(config_path="configs/msg_gan/config.yaml")
 def train_msg_gan(cfg: DictConfig) -> None:
-    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.benchmark = True
 
     if cfg.resume_id:
         resume_train_msg_gan(cfg)

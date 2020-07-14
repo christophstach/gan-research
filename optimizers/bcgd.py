@@ -2,21 +2,22 @@ import time
 
 import torch
 import torch.autograd as autograd
+from torch.optim.optimizer import Optimizer
 
 from utils.cgd import conjugate_gradient, Hvp_vec, zero_grad
 
-from torch.optim.optimizer import Optimizer
-
 
 # https://github.com/devzhk/Implicit-Competitive-Regularization
-class CGD(Optimizer):
+class BCGD(Optimizer):
     def __init__(self, max_params, min_params,
                  lr_max=1e-3, lr_min=1e-3,
                  tol=1e-12, atol=1e-20,
-                 momentum=0.0, device=torch.device('cpu'),
+                 momentum=0.0,
                  solve_x=False, collect_info=True):
         self.max_params = list(max_params)
         self.min_params = list(min_params)
+        self.device = self.max_params[0].device
+
         self.state = {'lr_max': lr_max, 'lr_min': lr_min,
                       'momentum': momentum, 'solve_x': solve_x,
                       'tol': tol, 'atol': atol,
@@ -227,14 +228,14 @@ class CGD(Optimizer):
                               'cg_x': norm_cgx, 'cg_y': norm_cgy})
 
 
-class BCGD2(object):
+class BCGD2(Optimizer):
     def __init__(self, max_params, min_params,
-                 lr_max=1e-3, lr_min=1e-3, device=torch.device('cpu'),
+                 lr_max=1e-3, lr_min=1e-3,
                  tol=1e-12, atol=1e-20,
                  update_max=False, collect_info=True):
         self.max_params = list(max_params)
         self.min_params = list(min_params)
-        self.device = device
+        self.device = self.max_params[0].device
         self.collect_info = collect_info
         self.state = {'lr_max': lr_max, 'lr_min': lr_min,
                       'tol': tol, 'atol': atol,
