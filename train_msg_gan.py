@@ -1,5 +1,6 @@
 import hydra
 import pytorch_lightning as pl
+import torch.backends.cudnn
 from omegaconf import DictConfig, OmegaConf
 
 from msg_gan import MsgGAN
@@ -7,6 +8,8 @@ from msg_gan import MsgGAN
 
 @hydra.main(config_path="configs/msg_gan/config.yaml")
 def train_msg_gan(cfg: DictConfig) -> None:
+    torch.backends.cudnn.benchmark = True
+
     if cfg.resume_id:
         resume_train_msg_gan(cfg)
     else:

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Callable
 
 import hydra
 import pytorch_lightning as pl
@@ -29,6 +29,7 @@ class MsgGAN(pl.LightningModule):
     generator_loss_regularizers: List[loss_regularizers.base.LossRegularizer]
     generator_weight_regularizers: List[weight_regularizers.base.GradientRegularizer]
     real_images: torch.Tensor
+    current_loss: torch.Tensor  # only used for competitive optimizers
 
     def __init__(self, hparams=None):
         super().__init__()
@@ -83,24 +84,43 @@ class MsgGAN(pl.LightningModule):
             for regularizer in self.cfg.weight_regularizers.generator
         ]
 
-    def training_step(self, batch, batch_idx, optimizer_idx):
-        self.discriminator.train(optimizer_idx == 0)
-        self.generator.train(optimizer_idx == 1)
+    def training_step(self, batch, batch_idx, optimizer_idx=None):
+        if self.cfg.optimizer.type == "alternating":
+            self.discriminator.train(optimizer_idx == 0)
+            self.generator.train(optimizer_idx == 1)
 
-        if optimizer_idx == 0:
-            outputs = self.training_step_discriminator(batch)
+            if optimizer_idx == 0:
+                outputs = self.training_step_discriminator(batch)
+            else:
+                outputs = self.training_step_generator(batch)
+
+            log = {
+                k: outputs["log"][k].item() if isinstance(outputs["log"][k], torch.Tensor) else outputs["log"][k]
+                for k in outputs["log"].keys()
+            }
+            self.logger.experiment.log(log)
+            return {
+                "loss": outputs["loss"],
+                "progress_bar": outputs["progress_bar"]
+            }
+        elif self.cfg.optimizer.type == "competitive":
+            return self.training_step_discriminator(batch)
+            # self.real_images, _ = batch
+
+            # z = utils.sample_noise(self.real_images.size(0), self.cfg.latent_dimension, self.real_images.device)
+            # scaled_real_images = utils.to_scaled_images(self.real_images, self.cfg.image_size)
+            # real_validity = self.discriminator.forward(scaled_real_images)
+
+            # fake_images = self.forward(z)
+            # fake_validity = self.discriminator.forward(fake_images)
+
+            # loss = self.loss.discriminator_loss(real_validity, fake_validity)
+            # loss = fake_validity.mean() - real_validity.mean()
+            # return OrderedDict({
+            #    "loss": loss
+            # })
         else:
-            outputs = self.training_step_generator(batch)
-
-        log = {
-            k: outputs["log"][k].item() if isinstance(outputs["log"][k], torch.Tensor) else outputs["log"][k]
-            for k in outputs["log"].keys()
-        }
-        self.logger.experiment.log(log)
-        return {
-            "loss": outputs["loss"],
-            "progress_bar": outputs["progress_bar"]
-        }
+            raise NotImplementedError()
 
     def training_step_discriminator(self, batch):
         self.real_images, _ = batch
@@ -108,11 +128,25 @@ class MsgGAN(pl.LightningModule):
 
         z = utils.sample_noise(self.real_images.size(0), self.cfg.latent_dimension, self.real_images.device)
         scaled_real_images = utils.to_scaled_images(self.real_images, self.cfg.image_size)
-        fake_images = [fake_image.detach() for fake_image in self.forward(z)]
+
+        if self.cfg.optimizer.type == "alternating":
+            fake_images = [fake_image.detach() for fake_image in self.forward(z)]
+        elif self.cfg.optimizer.type == "competitive":
+            fake_images = self.forward(z)
+        else:
+            raise NotImplementedError()
 
         if self.cfg.instance_noise:
-            scaled_real_images, _ = utils.instance_noise(scaled_real_images, self.global_step, self.cfg.instance_noise_last_global_step)
-            fake_images, in_sigma = utils.instance_noise(fake_images, self.global_step, self.cfg.instance_noise_last_global_step)
+            scaled_real_images, _ = utils.instance_noise(
+                scaled_real_images,
+                self.global_step,
+                self.cfg.instance_noise_last_global_step
+            )
+            fake_images, in_sigma = utils.instance_noise(
+                fake_images,
+                self.global_step,
+                self.cfg.instance_noise_last_global_step
+            )
             logs = {**logs, "in_sigma": in_sigma}
 
         real_validity = self.discriminator(scaled_real_images)
@@ -147,8 +181,16 @@ class MsgGAN(pl.LightningModule):
         fake_images = self.forward(z)
 
         if self.cfg.instance_noise:
-            scaled_real_images, _ = utils.instance_noise(scaled_real_images, self.global_step, self.cfg.instance_noise_last_global_step)
-            fake_images, in_sigma = utils.instance_noise(fake_images, self.global_step, self.cfg.instance_noise_last_global_step)
+            scaled_real_images, _ = utils.instance_noise(
+                scaled_real_images,
+                self.global_step,
+                self.cfg.instance_noise_last_global_step
+            )
+            fake_images, in_sigma = utils.instance_noise(
+                fake_images,
+                self.global_step,
+                self.cfg.instance_noise_last_global_step
+            )
             logs = {**logs, "in_sigma": in_sigma}
 
         real_validity = self.discriminator(scaled_real_images)
@@ -200,27 +242,62 @@ class MsgGAN(pl.LightningModule):
         )
 
     def configure_optimizers(self):
-        discriminator_optimizer = hydra.utils.instantiate(self.cfg.optimizer.discriminator, self.discriminator.parameters())
-        generator_optimizer = hydra.utils.instantiate(self.cfg.optimizer.generator, self.generator.parameters())
+        if self.cfg.optimizer.type == "alternating":
+            discriminator_optimizer = hydra.utils.instantiate(
+                self.cfg.optimizer.discriminator,
+                self.discriminator.parameters()
+            )
+            generator_optimizer = hydra.utils.instantiate(
+                self.cfg.optimizer.generator,
+                self.generator.parameters()
+            )
 
-        return (
-            {"optimizer": discriminator_optimizer, "frequency": self.cfg.optimizer.discriminator.frequency},
-            {"optimizer": generator_optimizer, "frequency": self.cfg.optimizer.generator.frequency}
-        )
+            return (
+                {"optimizer": discriminator_optimizer, "frequency": self.cfg.optimizer.discriminator.frequency},
+                {"optimizer": generator_optimizer, "frequency": self.cfg.optimizer.generator.frequency}
+            )
+        elif self.cfg.optimizer.type == "competitive":
+            optimizer = hydra.utils.instantiate(
+                self.cfg.optimizer,
+                self.generator.parameters(),
+                self.discriminator.parameters()
+            )
+
+            return optimizer
+        else:
+            raise NotImplementedError()
 
     def backward(self, trainer, loss: Tensor, optimizer: Optimizer, optimizer_idx: int) -> None:
-        loss.backward()
+        if self.cfg.optimizer.type == "alternating":
+            loss.backward()
 
-        if optimizer_idx == 0:
-            for discriminator_weight_regularizer in self.discriminator_weight_regularizers:
-                discriminator_weight_regularizer(self.discriminator)
+            if optimizer_idx == 0:
+                for discriminator_weight_regularizer in self.discriminator_weight_regularizers:
+                    discriminator_weight_regularizer(self.discriminator)
 
-        if optimizer_idx == 1:
-            for generator_weight_regularizer in self.generator_weight_regularizers:
-                generator_weight_regularizer(self.generator)
+            if optimizer_idx == 1:
+                for generator_weight_regularizer in self.generator_weight_regularizers:
+                    generator_weight_regularizer(self.generator)
+        elif self.cfg.optimizer.type == "competitive":
+            self.current_loss = loss
+        else:
+            raise NotImplementedError()
+
+    def optimizer_step(self, epoch: int, batch_idx: int, optimizer: Optimizer, optimizer_idx: int,
+                       second_order_closure: Optional[Callable] = None, on_tpu: bool = False,
+                       using_native_amp: bool = False, using_lbfgs: bool = False) -> None:
+        if self.cfg.optimizer.type == "alternating":
+            super().optimizer_step(epoch, batch_idx, optimizer, optimizer_idx, second_order_closure, on_tpu,
+                                   using_native_amp, using_lbfgs)
+        elif self.cfg.optimizer.type == "competitive":
+            optimizer.zero_grad()
+            optimizer.step(loss=self.current_loss)
+        else:
+            raise NotImplementedError()
 
     def on_epoch_end(self) -> None:
-        z = utils.sample_noise(self.cfg.logging.image_grid_size ** 2, self.cfg.latent_dimension, self.real_images.device)
+        z = utils.sample_noise(self.cfg.logging.image_grid_size ** 2, self.cfg.latent_dimension,
+                               self.real_images.device)
         resolutions = self.forward(z)
 
         logs = {

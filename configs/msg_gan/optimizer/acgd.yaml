@@ -1,0 +1,7 @@
+optimizer:
+  # https://github.com/devzhk/Implicit-Competitive-Regularization
+  type: competitive
+  class: optimizers.ACGD
+  params:
+    lr_min: 1e-4
+    lr_max: 1e-4

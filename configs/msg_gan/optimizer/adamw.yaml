@@ -1,5 +1,5 @@
 optimizer:
-  type: common
+  type: alternating
   generator:
     frequency: 1
     class: torch.optim.AdamW
